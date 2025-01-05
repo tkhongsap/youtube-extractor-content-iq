@@ -8,7 +8,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex h-16 items-center border-b">
+      <div className="flex h-16 items-center">
         <MainNav />
       </div>
       <div className="flex">
@@ -19,7 +19,6 @@ export default function DashboardLayout({
             </div>
           </div>
         </aside>
-        <div className="fixed left-[240px] w-[1px] h-[calc(100vh-4rem)] bg-border" />
         <main className="pl-[240px] w-full">
           <div className="flex-1 p-8">
             <div className="mx-auto max-w-6xl">
