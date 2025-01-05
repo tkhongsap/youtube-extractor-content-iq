@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Bar, BarChart, Line, LineChart, XAxis, YAxis } from "recharts"
 
 export default function AnalyticsPage() {
@@ -117,5 +116,4 @@ export default function AnalyticsPage() {
       </div>
     </div>
   )
-}
-
+} 
