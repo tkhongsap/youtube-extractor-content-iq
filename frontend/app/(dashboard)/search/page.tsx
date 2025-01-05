@@ -8,9 +8,9 @@ import Link from "next/link"
 export default function SearchPage() {
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center text-center gap-4">
         <h1 className="text-3xl font-bold">Find YouTube Videos</h1>
-        <p className="text-muted-foreground">Search and analyze YouTube videos for your research</p>
+        <p className="text-muted-foreground max-w-[600px]">Search and analyze YouTube videos for your research</p>
         <div className="flex w-full max-w-2xl gap-2">
           <Input 
             placeholder="Enter YouTube URL or search keywords..." 
@@ -23,9 +23,9 @@ export default function SearchPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i}>
+          <Card key={i} className="flex flex-col">
             <CardHeader className="p-0">
               <div className="aspect-video relative">
                 <Image
@@ -36,8 +36,8 @@ export default function SearchPage() {
                 />
               </div>
             </CardHeader>
-            <CardContent className="p-4">
-              <CardTitle className="text-lg">How to Build Better Products</CardTitle>
+            <CardContent className="flex-1 p-4">
+              <CardTitle className="text-lg line-clamp-2">How to Build Better Products</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">Channel Name • 100K views</p>
               <p className="text-sm mt-2 line-clamp-2">
                 Learn the essential principles of building products that users love. This comprehensive guide covers everything from user research to launch strategies.
