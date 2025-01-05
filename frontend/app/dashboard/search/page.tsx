@@ -1,105 +1,149 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search } from 'lucide-react'
+import { Search, Loader2 } from 'lucide-react'
 import Image from "next/image"
 import Link from "next/link"
-import { searchYouTubeVideos, getMyRecentVideos, type YouTubeVideo } from "@/lib/youtube"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { YouTubeVideo, searchYouTubeVideos, getMyRecentVideos } from "@/lib/youtube"
 
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [videos, setVideos] = useState<YouTubeVideo[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState<string | null>(null)
+  const router = useRouter()
 
+  // Load initial videos when the page mounts
   useEffect(() => {
-    // Load recent videos on mount
-    loadRecentVideos()
+    loadInitialVideos()
   }, [])
 
-  async function loadRecentVideos() {
+  const loadInitialVideos = async () => {
+    setIsLoading(true)
     try {
-      setIsLoading(true)
-      const recentVideos = await getMyRecentVideos()
-      setVideos(recentVideos)
+      const initialVideos = await getMyRecentVideos()
+      setVideos(initialVideos)
     } catch (error) {
-      console.error('Error loading recent videos:', error)
+      console.error("Failed to load initial videos:", error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
+  const handleSearch = async () => {
     if (!searchQuery.trim()) return
-
+    setIsLoading(true)
     try {
-      setIsLoading(true)
-      const searchResults = await searchYouTubeVideos(searchQuery)
-      setVideos(searchResults)
+      const results = await searchYouTubeVideos(searchQuery)
+      setVideos(results)
     } catch (error) {
-      console.error('Error searching videos:', error)
+      console.error("Search failed:", error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  function formatViewCount(count: string) {
-    const num = parseInt(count)
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M'
+  const handleAnalyze = async (videoId: string, videoUrl: string) => {
+    setIsAnalyzing(videoId)
+    try {
+      const response = await fetch("https://brightify-snap-buzz-production.up.railway.app/extract", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: videoUrl }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to analyze video")
+      }
+
+      const data = await response.json()
+      
+      // Store the analysis data
+      localStorage.setItem(`analysis_${videoId}`, JSON.stringify({
+        transcript: data.transcript,
+        metadata: data.metadata,
+        timestamp: new Date().toISOString()
+      }))
+
+      // Navigate to the analysis page
+      router.push(`/dashboard/video-analysis/${videoId}`)
+    } catch (error) {
+      console.error("Analysis failed:", error)
+      alert("Failed to analyze video. Please try again.")
+    } finally {
+      setIsAnalyzing(null)
     }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K'
-    }
-    return count
   }
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center text-center gap-4">
         <h1 className="text-3xl font-bold">Find YouTube Videos</h1>
-        <p className="text-muted-foreground">Search and analyze YouTube videos for your research</p>
-        <form onSubmit={handleSearch} className="flex w-full max-w-2xl gap-2">
+        <p className="text-muted-foreground max-w-[600px]">Search and analyze YouTube videos for your research</p>
+        <div className="flex w-full max-w-2xl gap-2">
           <Input 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Enter YouTube URL or search keywords..." 
             className="flex-1"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <Button type="submit" className="gradient-bg" disabled={isLoading}>
-            <Search className="mr-2 h-4 w-4" />
-            {isLoading ? "Searching..." : "Search"}
+          <Button 
+            className="gradient-bg"
+            onClick={handleSearch}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Search className="mr-2 h-4 w-4" />
+            )}
+            Search
           </Button>
-        </form>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {videos.map((video) => (
-          <Card key={video.id} className="overflow-hidden">
+          <Card key={video.id} className="flex flex-col">
             <CardHeader className="p-0">
               <div className="aspect-video relative">
                 <Image
                   src={video.thumbnail}
                   alt={video.title}
                   fill
-                  className="object-cover"
+                  className="object-cover rounded-t-lg"
                 />
               </div>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="flex-1 p-4">
               <CardTitle className="text-lg line-clamp-2">{video.title}</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {video.channelTitle} • {formatViewCount(video.viewCount)} views
+                {video.channelTitle} • {video.viewCount} views
               </p>
-              <p className="text-sm mt-2 line-clamp-2 text-muted-foreground">
-                {video.description}
-              </p>
+              <p className="text-sm mt-2 line-clamp-2">{video.description}</p>
             </CardContent>
             <CardFooter className="px-4 pb-4 pt-0 flex gap-2">
-              <Button className="flex-1 gradient-bg">Analyze</Button>
+              <Button 
+                className="flex-1 gradient-bg"
+                onClick={() => handleAnalyze(video.id, `https://www.youtube.com/watch?v=${video.id}`)}
+                disabled={isAnalyzing === video.id}
+              >
+                {isAnalyzing === video.id ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  "Analyze"
+                )}
+              </Button>
               <Button variant="outline">Save</Button>
             </CardFooter>
           </Card>

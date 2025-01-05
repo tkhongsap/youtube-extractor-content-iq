@@ -51,9 +51,8 @@ export async function searchYouTubeVideos(query: string): Promise<YouTubeVideo[]
 
 export async function getMyRecentVideos(): Promise<YouTubeVideo[]> {
   try {
-    // Default search when page loads
-    // You can modify this query to show different types of videos by default
-    return await searchYouTubeVideos('AI Trends in 2025');
+    // Load trending tech videos by default
+    return await searchYouTubeVideos('AI and Technology Trends 2025');
   } catch (error) {
     console.error('Error fetching recent videos:', error);
     return [];
