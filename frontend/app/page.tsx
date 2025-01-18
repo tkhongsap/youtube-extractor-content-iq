@@ -1,19 +1,6 @@
-"use client"
 
-import { useState } from 'react'
-import { Header } from '@/components/Header'
-import { Sidebar } from '@/components/Sidebar'
-import { MainContent } from '@/components/MainContent'
+import { redirect } from 'next/navigation'
 
 export default function Home() {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-
-  return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      <Header />
-      <Sidebar isCollapsed={isSidebarCollapsed} />
-      <MainContent />
-    </div>
-  )
+  redirect('/dashboard')
 }
-
