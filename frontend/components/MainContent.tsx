@@ -1,3 +1,4 @@
+
 import { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from './ui/button'
@@ -22,9 +23,9 @@ const categories = [
 // Mock data for demonstration
 const mockVideos = Array(20).fill(null).map((_, i) => ({
   id: i.toString(),
-  thumbnail: \`https://picsum.photos/seed/\${i}/640/360\`,
-  title: \`Sample Video Title \${i + 1} - This is a longer title to demonstrate multiple lines\`,
-  channel: \`Channel \${i + 1}\`,
+  thumbnail: `https://picsum.photos/seed/${i}/640/360`,
+  title: `Sample Video Title ${i + 1} - This is a longer title to demonstrate multiple lines`,
+  channel: `Channel ${i + 1}`,
   views: Math.floor(Math.random() * 1000000),
   timeAgo: '3 days ago',
   duration: '10:30',
@@ -45,7 +46,6 @@ export function MainContent() {
 
   return (
     <main className="flex-1 min-h-screen pt-16 pl-[72px]">
-      {/* Categories navigation */}
       <div className="sticky top-16 z-40 bg-white dark:bg-gray-900 border-b">
         <div className="relative flex items-center">
           <Button
@@ -88,7 +88,6 @@ export function MainContent() {
         </div>
       </div>
 
-      {/* Video grid */}
       <div className="max-w-[2400px] mx-auto p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {mockVideos.map((video) => (
@@ -98,4 +97,4 @@ export function MainContent() {
       </div>
     </main>
   )
-} 
+}
